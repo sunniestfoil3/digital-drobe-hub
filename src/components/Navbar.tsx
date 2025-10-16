@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FaWallet } from 'react-icons/fa';
+import { FaWallet, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { HiMenu, HiX } from 'react-icons/hi';
+import { useMarketplace } from '@/hooks/useMarketplace';
+import { toast } from 'sonner';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { userProfile, connectWallet, disconnectWallet, isLoggedIn } = useMarketplace();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,10 +21,23 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Explorar', href: '#explore' },
-    { label: 'Criadores', href: '#creators' },
-    { label: 'Comunidade', href: '#community' },
+    { label: 'Explorar', href: '/' },
+    { label: 'Criadores', href: '/#creators' },
+    { label: 'Comunidade', href: '/#community' },
   ];
+
+  const handleConnectWallet = () => {
+    connectWallet();
+    toast.success('Carteira conectada com sucesso!');
+  };
+
+  const handleDisconnectWallet = () => {
+    if (window.confirm('Deseja realmente desconectar sua carteira?')) {
+      disconnectWallet();
+      toast.info('Carteira desconectada');
+      navigate('/');
+    }
+  };
 
   return (
     <nav
@@ -30,7 +48,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="/" className="font-display text-2xl font-bold text-primary">
+          <a href="/" className="font-display text-2xl font-bold text-primary hover:text-accent transition-colors">
             MetaDrobe
           </a>
 
@@ -48,11 +66,32 @@ const Navbar = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="hidden md:block">
-            <Button className="gap-2">
-              <FaWallet />
-              Conectar Carteira
-            </Button>
+          <div className="hidden md:flex items-center gap-3">
+            {isLoggedIn ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="gap-2"
+                  onClick={() => navigate('/perfil')}
+                >
+                  <FaUser />
+                  {userProfile?.username}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleDisconnectWallet}
+                  title="Desconectar"
+                >
+                  <FaSignOutAlt />
+                </Button>
+              </>
+            ) : (
+              <Button className="gap-2" onClick={handleConnectWallet}>
+                <FaWallet />
+                Conectar Carteira
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -80,10 +119,23 @@ const Navbar = () => {
                 {link.label}
               </a>
             ))}
-            <Button className="w-full gap-2">
-              <FaWallet />
-              Conectar Carteira
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Button className="w-full gap-2" onClick={() => { navigate('/perfil'); setIsMobileMenuOpen(false); }}>
+                  <FaUser />
+                  {userProfile?.username}
+                </Button>
+                <Button variant="outline" className="w-full gap-2" onClick={handleDisconnectWallet}>
+                  <FaSignOutAlt />
+                  Desconectar
+                </Button>
+              </>
+            ) : (
+              <Button className="w-full gap-2" onClick={handleConnectWallet}>
+                <FaWallet />
+                Conectar Carteira
+              </Button>
+            )}
           </div>
         </div>
       )}

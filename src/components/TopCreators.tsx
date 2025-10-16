@@ -56,7 +56,7 @@ const TopCreators = () => {
   ];
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-transparent via-card/20 to-transparent">
+    <section id="creators" className="py-24 px-4 bg-gradient-to-b from-transparent via-card/20 to-transparent">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
